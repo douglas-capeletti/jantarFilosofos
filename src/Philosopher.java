@@ -19,27 +19,27 @@ public class Philosopher extends Thread {
         this.id = id + 1;
         this.leftFork = leftFork;
         this.rightFork = rightFork;
-        this.runningTime = secondsRunning; // +1 second for the overhead
+        this.runningTime = secondsRunning;
     }
 
     private void thinking() {
         this.state = States.THINKING;
-        this.delaySeconds(5);
         this.thinkingCount++;
+        this.delaySeconds(5);
         this.log();
     }
 
     private void hungry() {
         this.state = States.HUNGRY;
-        this.delaySeconds(randomizer.nextInt(4)); //0 -> 4 exclusive on top limit
         this.hungryCount++;
+        this.delaySeconds(randomizer.nextInt(4)); //0 -> 4 exclusive on top limit
         this.log();
     }
 
     private void eating() {
         this.state = States.EATING;
-        this.delaySeconds(2);
         this.eatingCount++;
+        this.delaySeconds(2);
         this.log();
     }
 
@@ -47,15 +47,18 @@ public class Philosopher extends Thread {
     public void run() {
         long finalClockMillis = System.currentTimeMillis() + (runningTime * 1000);
         while (System.currentTimeMillis() < finalClockMillis) {
-            this.thinking();
+            if(!States.HUNGRY.equals(this.state)){
+                this.thinking();
+            }
             if (leftFork.tryAcquire()) {
                 if (rightFork.tryAcquire()) {
                     this.eating();
                     rightFork.release();
+                    leftFork.release();
                 } else {
+                    leftFork.release();
                     this.hungry();
                 }
-                leftFork.release();
             } else {
                 this.hungry();
             }
@@ -71,7 +74,7 @@ public class Philosopher extends Thread {
     }
 
     private void log() {
-        System.out.println("Filósofo: " + this.id + " \tStatus: " + this.state);
+        System.out.println("Filósofo: " + this.id + " \tStatus: " + this.state.label);
     }
 
     public void logReport() {

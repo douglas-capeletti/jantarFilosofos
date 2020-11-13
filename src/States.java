@@ -1,3 +1,11 @@
 public enum States {
-    THINKING, HUNGRY, EATING
+    THINKING("Pensando"),
+    HUNGRY("Tentando comer"),
+    EATING("Comendo");
+
+    public String label;
+
+    States(String label) {
+        this.label = label;
+    }
 }
